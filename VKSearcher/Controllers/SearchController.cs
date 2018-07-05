@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.Web.Http;
 using VkNet;
+using VkNet.Enums.SafetyEnums;
 using VkNet.Model;
 using VkNet.Model.RequestParams;
+using VkNet.Utils;
 using VKSearcher.Models;
 
 namespace VKSearcher.Controllers
@@ -11,8 +14,9 @@ namespace VKSearcher.Controllers
     public class SearchController : ApiController
     {
         [HttpGet, Route("")]
-        public VKUserModel Get()
+        public ReadOnlyCollection<User> Get()
         {
+
             var api = new VkApi();
             api.Authorize(new ApiAuthParams
             {
@@ -20,10 +24,18 @@ namespace VKSearcher.Controllers
             });
             var res = api.Groups.Get(new GroupsGetParams());
 
-            Console.WriteLine(res.TotalCount);
+            var list =  api.Likes.GetList(new LikesGetListParams
+            {
+                OwnerId = -56106344,
+                ItemId = 7259978,
+                Type = LikeObjectType.Post,
+                Count = 10
+            });
 
-            Console.ReadLine();
-            return new VKUserModel();
+            var users = api.Users.Get(list);
+            
+
+            return users;
         }
     }
 }
